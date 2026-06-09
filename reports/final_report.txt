@@ -1,0 +1,16 @@
+SECURITY TOOLKIT REPORT
+Generated: 2026-06-07 16:13:30.504450
+
+=== FILE CHANGES ===
+[]
+
+=== SECRETS FOUND ===
+config.env Line 1: password=
+config.env Line 2: api_key=
+config.env Line 3: token=
+
+=== PORT RESULTS ===
+{21: 'CLOSED', 22: 'CLOSED', 80: 'CLOSED', 443: 'CLOSED', 3306: 'CLOSED'}
+
+=== ALERTS ===
+[]
