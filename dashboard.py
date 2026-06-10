@@ -1,6 +1,6 @@
 from tkinter import *
 from tkinter import filedialog, messagebox
-
+import json
 from modules.log_analyzer import load_logs
 from modules.file_integrity import create_baseline, check_integrity
 from modules.secrets_scanner import scan_folder
@@ -213,9 +213,14 @@ def monitoring():
         )
         return
 
-    alerts = monitor_new_events(
-        JSON_FILE
-    )
+    try:
+        alerts = monitor_new_events(JSON_FILE)
+    except Exception as e:
+        messagebox.showerror(
+            "Error",
+            f"Monitoring failed: {e}"
+        )
+        return
 
     clear_output()
 
@@ -224,27 +229,67 @@ def monitoring():
         "========== SECURITY ALERTS ==========\n\n"
     )
 
-    if alerts:
+    if alerts and len(alerts) > 0:
 
         output.insert(
             END,
             f"Total Alerts: {len(alerts)}\n\n"
         )
 
-        for alert in alerts:
-
+        for i, alert in enumerate(alerts, 1):
             output.insert(
                 END,
-                str(alert) + "\n\n"
+                f"{i}. {alert}\n\n"
             )
 
     else:
 
         output.insert(
             END,
-            "No Alerts Found"
+            "No Alerts Found\n\n"
         )
 
+    
+    output.insert(
+        END,
+        "========== FAILED LOGINS ==========\n\n"
+    )
+
+    try:
+        with open(JSON_FILE, "r") as file:
+            logs = json.load(file)
+
+        failed_logs = []
+
+        for log in logs:
+            if str(log.get("status", "")).lower() == "failed":
+                failed_logs.append(log)
+
+        if len(failed_logs) > 0:
+
+            output.insert(
+                END,
+                f"Total Failed Logins: {len(failed_logs)}\n\n"
+            )
+
+            for i, log in enumerate(failed_logs, 1):
+                output.insert(
+                    END,
+                    f"{i}. User: {log.get('username')} | IP: {log.get('ip_address')} | Time: {log.get('timestamp')}\n"
+                )
+
+        else:
+
+            output.insert(
+                END,
+                "No Failed Logins Found\n"
+            )
+
+    except:
+        output.insert(
+            END,
+            "Could not load failed logs\n"
+        )
 
 def report():
 
